@@ -40,4 +40,47 @@ export default function QuestionRoutes(app) {
     res.json(status);
   };
   app.delete("/api/questions/:questionId", deleteQuestion);
+
+  // Submit quiz answers
+  const submitQuizAnswers = async (req, res) => {
+    const { quizId } = req.params;
+    const answers = req.body;
+  
+    try {
+      // Update each question document with the user's answer
+      for (const questionId in answers) {
+        const answer = answers[questionId];
+        await dao.updateQuestion(questionId, { userAnswer: answer });
+      }
+  
+      res.status(200).json({ message: 'Quiz answers submitted successfully' });
+    } catch (error) {
+      console.error('Error submitting quiz answers:', error);
+      res.status(500).json({ error: 'An error occurred while submitting the quiz answers' });
+    }
+  };
+
+  app.post("/api/quizzes/:quizId/submit", submitQuizAnswers);
+
+  const getUserAnswersForQuiz = async (req, res) => {
+    const { quizId } = req.params;
+  
+    try {
+      const questions = await dao.findQuestionsForQuiz(quizId);
+      const userAnswers = {};
+  
+      for (const question of questions) {
+        if (question.userAnswer) {
+          userAnswers[question._id] = question.userAnswer;
+        }
+      }
+  
+      res.status(200).json(userAnswers);
+    } catch (error) {
+      console.error('Error retrieving user answers for quiz:', error);
+      res.status(500).json({ error: 'An error occurred while retrieving user answers for quiz' });
+    }
+  };
+
+  app.get("/api/quizzes/:quizId/userAnswers", getUserAnswersForQuiz);
 }

@@ -14,6 +14,7 @@ const questionSchema = new mongoose.Schema({
   blanks: [{
     answer: String
   }],
+  userAnswer: [String], 
   course: String,
   quiz: String
 }, { collection: 'questions' });
