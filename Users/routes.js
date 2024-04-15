@@ -1,6 +1,5 @@
 import * as dao from "./dao.js";
 //let currentUser = null;
-let globalCurrentuser;
 
 export default function UserRoutes(app) {
   const createUser = async (req, res) => {
@@ -46,7 +45,6 @@ export default function UserRoutes(app) {
     }
     const currentUser = await dao.createUser(req.body);
     req.session["currentUser"] = currentUser;
-    globalCurrentuser = currentUser;
     res.json(currentUser);
   };
 
@@ -56,7 +54,6 @@ export default function UserRoutes(app) {
     const currentUser = await dao.findUserByCredentials(username, password);
     if (currentUser) {
       req.session["currentUser"] = currentUser;
-      globalCurrentuser = currentUser;
       res.json(currentUser);
     } else {
       res.sendStatus(401);
